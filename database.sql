@@ -1,54 +1,187 @@
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    telefone VARCHAR(20),
-    tipo VARCHAR(20) NOT NULL -- ENUM('profissional', 'cliente')
-);
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 29/10/2025 às 01:19
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
 
-CREATE TABLE IF NOT EXISTS enderecos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_cliente INTEGER NOT NULL,
-    rua VARCHAR(255),
-    numero VARCHAR(50),
-    complemento VARCHAR(255),
-    bairro VARCHAR(255),
-    cidade VARCHAR(255),
-    estado VARCHAR(255),
-    cep VARCHAR(20),
-    ponto_referencia TEXT,
-    FOREIGN KEY (id_cliente) REFERENCES usuarios(id) ON DELETE CASCADE
-);
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
-CREATE TABLE IF NOT EXISTS servicos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
-    preco_base REAL,
-    preco_tipo VARCHAR(20) NOT NULL -- ENUM('fixo', 'a_combinar')
-);
 
-CREATE TABLE IF NOT EXISTS agendamentos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_cliente INTEGER NOT NULL,
-    id_servico INTEGER NOT NULL,
-    data_hora_inicio DATETIME NOT NULL,
-    data_hora_fim DATETIME NOT NULL,
-    valor_final REAL,
-    status VARCHAR(20) NOT NULL DEFAULT 'agendado', -- ENUM('agendado', 'concluido', 'cancelado')
-    FOREIGN KEY (id_cliente) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (id_servico) REFERENCES servicos(id) ON DELETE CASCADE
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- Inserir um usuário profissional padrão (senha: admin123)
-INSERT INTO usuarios (nome, email, senha, telefone, tipo) VALUES 
-('Adamastor Silva', 'adamastor@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '(11) 98765-4321', 'profissional');
+--
+-- Banco de dados: `database_adamastor`
+--
 
--- Inserir alguns serviços de exemplo
-INSERT INTO servicos (nome, descricao, preco_base, preco_tipo) VALUES 
-('Instalação de Prateleira', 'Instalação de prateleiras em diversos tamanhos', 80.00, 'fixo'),
-('Reparo de Vazamento', 'Reparo de vazamentos em pias, torneiras e tubulações', 100.00, 'a_combinar'),
-('Instalação de Chuveiro', 'Instalação completa de chuveiro elétrico', 120.00, 'fixo'),
-('Troca de Torneira', 'Troca de torneiras de cozinha ou banheiro', 60.00, 'fixo'),
-('Serviço Elétrico', 'Instalação e reparos elétricos diversos', 150.00, 'a_combinar');
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `agendamentos`
+--
+
+CREATE TABLE `agendamentos` (
+  `id` int(11) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `id_servico` int(11) NOT NULL,
+  `data_hora_inicio` datetime NOT NULL,
+  `data_hora_fim` datetime NOT NULL,
+  `valor_final` decimal(10,2) DEFAULT NULL,
+  `status` enum('agendado','concluido','cancelado') NOT NULL DEFAULT 'agendado'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `enderecos`
+--
+
+CREATE TABLE `enderecos` (
+  `id` int(11) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `rua` varchar(255) DEFAULT NULL,
+  `numero` varchar(50) DEFAULT NULL,
+  `complemento` varchar(255) DEFAULT NULL,
+  `bairro` varchar(255) DEFAULT NULL,
+  `cidade` varchar(255) DEFAULT NULL,
+  `estado` varchar(255) DEFAULT NULL,
+  `cep` varchar(20) DEFAULT NULL,
+  `ponto_referencia` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `servicos`
+--
+
+CREATE TABLE `servicos` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `preco_base` decimal(10,2) DEFAULT NULL,
+  `preco_tipo` enum('fixo','a_combinar') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `servicos`
+--
+
+INSERT INTO `servicos` (`id`, `nome`, `descricao`, `preco_base`, `preco_tipo`) VALUES
+(1, 'Instalação de Prateleira', 'Instalação de prateleiras em diversos tamanhos', 80.00, 'fixo'),
+(2, 'Reparo de Vazamento', 'Reparo de vazamentos em pias, torneiras e tubulações', 100.00, 'a_combinar'),
+(3, 'Instalação de Chuveiro', 'Instalação completa de chuveiro elétrico', 120.00, 'fixo'),
+(4, 'Troca de Torneira', 'Troca de torneiras de cozinha ou banheiro', 60.00, 'fixo'),
+(5, 'Serviço Elétrico', 'Instalação e reparos elétricos diversos', 150.00, 'a_combinar');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `tipo` enum('profissional','cliente') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `telefone`, `tipo`) VALUES
+(1, 'Cauê Domingues', 'cauedferreira@gmail.com', 'admin123', '(11) 98765-4321', 'profissional'),
+(2, 'Adamastor Silva', 'adamastor@gmail.com', '$2y$10$lMpR4rbH4wVWyc2fgnakFel0Tgq2b0Rbe3Z18YzBHqqn8Ff6pK9/2', '19971108379', 'cliente');
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `agendamentos`
+--
+ALTER TABLE `agendamentos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_agendamentos_cliente` (`id_cliente`),
+  ADD KEY `idx_agendamentos_servico` (`id_servico`);
+
+--
+-- Índices de tabela `enderecos`
+--
+ALTER TABLE `enderecos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_enderecos_cliente` (`id_cliente`);
+
+--
+-- Índices de tabela `servicos`
+--
+ALTER TABLE `servicos`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `agendamentos`
+--
+ALTER TABLE `agendamentos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `enderecos`
+--
+ALTER TABLE `enderecos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `servicos`
+--
+ALTER TABLE `servicos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `agendamentos`
+--
+ALTER TABLE `agendamentos`
+  ADD CONSTRAINT `fk_agendamentos_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_agendamentos_servico` FOREIGN KEY (`id_servico`) REFERENCES `servicos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `enderecos`
+--
+ALTER TABLE `enderecos`
+  ADD CONSTRAINT `fk_enderecos_usuario` FOREIGN KEY (`id_cliente`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
